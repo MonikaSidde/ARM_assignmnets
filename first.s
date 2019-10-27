@@ -3,13 +3,16 @@
      ENTRY 
 __main  FUNCTION	
 ; IGNORE THIS PART 	
-	    MOV R1, #0  ; First num : 0
-		LDR R2, =0x00000001   ; First num : 1
-loop	ADD R4,R1,R2 ; Add ; Fibinocci Series is updated in R4 in every iteration.
-		MOV R1, R2  
-		MOV R2, R4
-		CMP R4, #40 ; Check for the final number < 40 (Optional Loop condition)
-		BLS loop
+	    MOV r0 , #20   ;first number
+	          MOV r1 , #36    ;second number
+              MOV r2 , #10 	  ;third number  			  
+              CMP r0 , r1
+              IT HI
+              MOVHI r1 , r0 
+			  CMP r1 , r2
+			  IT HI 
+			  MOVHI r2 , r1
+			  MOV r3 , r2 ;The greatest number is updated to R3
 stop    B stop ; stop program
      ENDFUNC
      END 
