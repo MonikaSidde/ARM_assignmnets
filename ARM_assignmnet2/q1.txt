@@ -1,0 +1,71 @@
+ ; exp(x) Implementation
+
+	 AREA     appcode, CODE, READONLY
+
+     EXPORT __main
+
+     ENTRY 
+
+__main  FUNCTION	
+
+; IGNORE THIS PART 	; exp(x) is stored in s7
+
+				MOV R0, #1 ; Initialization of input x
+
+whileouter		VMOV s0,R0 ; Outer loop for incrementing value of x
+
+				VCVT.F32.U32 s0,s0
+
+				VLDR.F32 s1, =1 ;num
+
+				MOV  R3, #1 ; n 
+
+				VLDR.F32 s7, =1;sum
+
+whileinner		VMUL.F32 s1,s1,s0 ; num=num*x ; Inner loop for number of terms(iterations)
+
+			    ; factorial
+
+				MOV R2,R3
+
+				VLDR.F32 s6,=1;
+
+loop			CMP R2,#0
+
+				VMOV  s3,R2;
+
+				VCVT.F32.U32 s3,s3
+
+				VMULHI.F32 s6,s3,s6
+
+				SUBHI R2,R2,#1
+
+				BHI loop
+
+				;factorial
+
+				VDIV.F32 s5,s1,s6;temp ; x^n/(n!)
+
+				VADD.F32 s7,s7,s5;  Adding with previous summation value
+
+				ADD R3,R3,#1;
+
+				CMP R3,#27; Number of iterations (R3-1) (n)
+
+				BLT whileinner
+
+				ADD R0,R0,#1
+
+				CMP R0,#51;  Input x (Maximum number) :(R0-1)
+
+				BLT whileouter
+
+				
+
+		
+
+stop    B stop ; stop program
+
+     ENDFUNC
+
+     END 
