@@ -1,0 +1,75 @@
+     AREA     factorial, CODE, READONLY
+     EXPORT __main
+     ENTRY 
+__main  FUNCTION	
+	
+	  ; s12 contains tanx value 
+					; s11 contains cosx value
+					; s10 contains sinx value
+				LDR R7,=361;
+				VLDR.F32 s9,=180
+				LDR R12,=0;
+whileouter		VMOV s0,R12;
+				VCVT.F32.U32 s0,s0
+				LDR R0, =0x40490fdb 
+				VMOV s11,R0;
+				VMUL.F32 s0,s0,s11
+				VDIV.F32 s0,s0,s9 
+				;VLDR.F32 s0,=1
+				VMOV.F32 s10,s0 ; sum1
+				VLDR.F32 s11,=1 ; sum2
+				
+				MOV R11, #1;
+				VLDR.F32 s2,=1 ; temp2
+				VMOV.F32 s1,s0 ;  temp
+				MOV R0, #1 ; n
+				MOV R2, #2;
+				VMUL.F32 s0,s0,s0 ; s0 --> x^2
+whileloop		VMUL.F32 s1,s1,s0 ; s1 ---> temp :x^(2n+1)
+				VMUL.F32 s2,s2,s0 ; s2 ---> temp2 :x^(2n)
+				MUL  R3,R2,R0 
+				ADD R4,R3,#1
+				BL factorial
+				VMOV.F32 s4,s6 ; s4 --> (2n+1)!
+				MOV R4,R3
+				BL factorial
+				; s6 contains (2n)!
+				VDIV.F32 s7,s1,s4 ; q ---> temp/(2n+1)!
+				VDIV.F32 s8,s2,s6 ; s ---> temp2/(2n)!
+				BL evenodd
+				VDIV.F32 s12,s10,s11 ; tanx --> s12
+				ADD R0,R0,#1
+				CMP R0,#21  ; R0 --> Number of iterations(R0-1)
+				BLT whileloop
+				ADD R12,R12,#5 ; R12 ---> Increment value of x in degrees.
+				
+				CMP R12,R7
+				BLT whileouter
+				B stop
+				
+				
+evenodd			MOV R8, #2  ; To divide the given number by 2
+				UDIV R9, R0, R8 ; Number/2 -- To find quotient
+				MLS R9, R9, R8,R0 ; To find remainder when the number is divided by 2
+				CMP R9, #0 ; Compare the remainder with Zero
+				ITTEE EQ ; Check the condition if R3 = 0 
+				VADDEQ.F32 s10,s10,s7 ; sinx --> s10
+				VADDEQ.F32 s11,s11,s8 ; cosx --> s11
+				VSUBNE.F32 s10,s10,s7
+				VSUBNE.F32 s11,s11,s8
+				BX LR
+				
+				
+factorial		VLDR.F32 s6,=1;
+loop			CMP R4,#0
+				VMOV  s3,R4;
+				VCVT.F32.U32 s3,s3
+				VMULHI.F32 s6,s3,s6
+				SUBHI R4,R4,#1
+				BHI loop
+				BX LR
+				
+				
+stop    B stop ; stop program
+     ENDFUNC
+     END 
